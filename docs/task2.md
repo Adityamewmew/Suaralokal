@@ -161,7 +161,7 @@
 - [x] Run `bun run build`.
 - [x] Manually verify the mobile flow in browser device mode.
 - [x] Manually verify the app in Android Emulator.
-- [ ] Commit with `test: cover suaralokal mvp2 flow`.
+- [x] Commit with `test: cover suaralokal mvp2 flow`.
 
 ## Done Criteria
 
