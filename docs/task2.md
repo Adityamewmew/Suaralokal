@@ -142,7 +142,7 @@
 - [x] Keep the settlement logic separate from normal order status transitions.
 - [x] Add tests proving settlement rows are created and state transitions stay consistent.
 - [x] Run `php artisan test --filter=SuaraLokalMvp2FlowTest`.
-- [ ] Commit with `feat: add settlement tracking`.
+- [x] Commit with `feat: add settlement tracking`.
 
 ## Task 6: Add Audit And Regression Coverage
 
