@@ -35,8 +35,9 @@ class AuthController extends Controller
     {
         switch ($user->role) {
             case UserConst::ROLE_SUPERADMIN:
-            case UserConst::ROLE_OJEK_ADMIN:
                 return redirect()->route('admin.dashboard');
+            case UserConst::ROLE_OJEK_ADMIN:
+                return redirect()->route('admin.bangjek_orders.index');
             case UserConst::ROLE_UMKM:
                 return redirect()->route('app.umkm.profile.edit');
             case UserConst::ROLE_PENGGUNA:
