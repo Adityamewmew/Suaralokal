@@ -70,13 +70,13 @@
 - Modify: `routes/web.php`
 - Test: `tests/Feature/SuaraLokalMvp2FlowTest.php`
 
-- [ ] Derive conversation participants from authenticated user context instead of trusting `peerId` or other request values.
-- [ ] Reject attempts to open or reuse a conversation when the peer does not match the logged-in user's allowed counterpart role.
-- [ ] Reject order creation if `conversation_id` does not belong to the authenticated UMKM and target pengguna pair.
-- [ ] Reject order confirmation if the order does not belong to the authenticated pengguna, even when a `peerId` is supplied.
-- [ ] Ensure driver-facing order detail actions still check ownership before status transitions.
-- [ ] Add regression tests for forged `peerId`, forged `conversation_id`, and forged `pengguna_id` values.
-- [ ] Run `php artisan test --filter=SuaraLokalMvp2FlowTest`.
+- [x] Derive conversation participants from authenticated user context instead of trusting `peerId` or other request values.
+- [x] Reject attempts to open or reuse a conversation when the peer does not match the logged-in user's allowed counterpart role.
+- [x] Reject order creation if `conversation_id` does not belong to the authenticated UMKM and target pengguna pair.
+- [x] Reject order confirmation if the order does not belong to the authenticated pengguna, even when a `peerId` is supplied.
+- [x] Ensure driver-facing order detail actions still check ownership before status transitions.
+- [x] Add regression tests for forged `peerId`, forged `conversation_id`, and forged `pengguna_id` values.
+- [x] Run `php artisan test --filter=SuaraLokalMvp2FlowTest`.
 - [ ] Commit with `feat: lock down chat and order ownership`.
 
 ## Task 3: Add Push Notifications And Queue Dispatch

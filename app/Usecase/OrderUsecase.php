@@ -44,6 +44,25 @@ class OrderUsecase extends Usecase
 
         $validator->validate();
 
+        // Security: verify that conversation exists and is between the authenticated UMKM and target pengguna pair
+        $conversation = DB::table(DatabaseConst::CONVERSATION())
+            ->where('id', $data['conversation_id'])
+            ->first();
+
+        if (! $conversation) {
+            return Response::buildError(
+                code: ResponseConst::HTTP_NOT_FOUND,
+                message: 'Percakapan tidak ditemukan.'
+            );
+        }
+
+        if ((int) $conversation->umkm_id !== $umkmId || (int) $conversation->pengguna_id !== (int) $data['pengguna_id']) {
+            return Response::buildError(
+                code: ResponseConst::HTTP_FORBIDDEN,
+                message: 'Akses ditolak: Percakapan tidak valid untuk UMKM dan Pengguna ini.'
+            );
+        }
+
         // Compute total items price
         $totalItemsPrice = 0;
         foreach ($data['items'] as $item) {

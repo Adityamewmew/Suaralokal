@@ -25,6 +25,30 @@ class ConversationUsecase extends Usecase
     public function findOrCreateConversation(int $penggunaId, int $umkmId): array
     {
         try {
+            // Security: verify pengguna role and umkm role
+            $pengguna = DB::table(DatabaseConst::USER())
+                ->where('id', $penggunaId)
+                ->whereNull('deleted_at')
+                ->first();
+            $umkm = DB::table(DatabaseConst::USER())
+                ->where('id', $umkmId)
+                ->whereNull('deleted_at')
+                ->first();
+
+            if (! $pengguna || $pengguna->role !== \App\Constants\UserConst::ROLE_PENGGUNA) {
+                return Response::buildError(
+                    code: ResponseConst::HTTP_FORBIDDEN,
+                    message: 'Akses ditolak: User bukan Pengguna.'
+                );
+            }
+
+            if (! $umkm || $umkm->role !== \App\Constants\UserConst::ROLE_UMKM) {
+                return Response::buildError(
+                    code: ResponseConst::HTTP_FORBIDDEN,
+                    message: 'Akses ditolak: User bukan UMKM.'
+                );
+            }
+
             $conversation = DB::table(DatabaseConst::CONVERSATION())
                 ->where('pengguna_id', $penggunaId)
                 ->where('umkm_id', $umkmId)
