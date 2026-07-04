@@ -14,6 +14,7 @@ import {
     varchar,
 } from 'drizzle-orm/pg-core';
 import type { AnyPgColumn } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 export const migrationsTable = pgTable('migrations', {
     id: serial('id').primaryKey(),
@@ -175,6 +176,9 @@ export const umkmProfilesTable = pgTable('umkm_profiles', {
     updated_at: timestamp('updated_at', { mode: 'date' }),
 }, (t) => [
     uniqueIndex('umkm_profiles_user_id_unique').on(t.user_id),
+    // ponytail: GiST expression index on ll_to_earth(lat,lng) backs earthdistance radius search
+    // (cube + earthdistance extensions) in place of a full PostGIS geometry column.
+    index('umkm_profiles_ll_to_earth_gist_idx').using('gist', sql`ll_to_earth(latitude, longitude)`),
 ]);
 
 export const conversationsTable = pgTable('conversations', {

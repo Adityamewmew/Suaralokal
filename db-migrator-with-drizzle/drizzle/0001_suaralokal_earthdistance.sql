@@ -1,0 +1,1 @@
+CREATE INDEX "umkm_profiles_ll_to_earth_gist_idx" ON "umkm_profiles" USING gist (ll_to_earth(latitude, longitude));

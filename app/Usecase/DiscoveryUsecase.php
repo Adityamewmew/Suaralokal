@@ -18,6 +18,12 @@ class DiscoveryUsecase extends Usecase
     /**
      * Find nearby open UMKM within radius, sorted by distance (km).
      *
+     * Uses the PostgreSQL cube + earthdistance extensions for a great-circle
+     * radius search in place of a full PostGIS geometry column. Distance is the
+     * exact earth_distance (meters) divided to km; ordering uses the cube <->
+     * operator so the umkm_profiles_ll_to_earth_gist_idx GiST index can serve
+     * the nearest-neighbour sort as the dataset grows.
+     *
      * @param  array{latitude?: mixed, longitude?: mixed, radius?: mixed, keyword?: string|null}  $filter
      */
     public function findNearby(array $filter = []): array
@@ -25,29 +31,28 @@ class DiscoveryUsecase extends Usecase
         try {
             $lat = (float) ($filter['latitude'] ?? 0);
             $lng = (float) ($filter['longitude'] ?? 0);
-            $radius = (float) ($filter['radius'] ?? 10);
+            $radiusKm = (float) ($filter['radius'] ?? 10);
+            $radiusMeters = $radiusKm * 1000;
             $keyword = is_string($filter['keyword'] ?? null) && $filter['keyword'] !== '' ? $filter['keyword'] : null;
 
-            // ponytail: Haversine computed in SQL over lat/lng columns. Bound by whereRaw radius.
-            // Upgrade path: switch to PostGIS geography + ST_DWithin / ST_DistanceSphere with a GIST index for scale.
-            $haversine = '(6371 * acos(cos(radians(' . $lat . ')) * cos(radians(latitude))'
-                . ' * cos(radians(longitude) - radians(' . $lng . '))'
-                . ' + sin(radians(' . $lat . ')) * sin(radians(latitude))))';
+            // Floats are pre-casted, safe to inline as the SQL origin point.
+            $origin = 'll_to_earth('.$lat.', '.$lng.')';
+            $distanceKm = 'round((earth_distance('.$origin.', ll_to_earth(up.latitude, up.longitude)) / 1000)::numeric, 2)';
 
-            $query = DB::table(DatabaseConst::UMKM_PROFILE() . ' as up')
-                ->join(DatabaseConst::USER() . ' as u', 'up.user_id', '=', 'u.id')
-                ->select('up.*', 'u.name', 'u.phone', DB::raw('round((' . $haversine . ')::numeric, 2) as distance'))
+            $query = DB::table(DatabaseConst::UMKM_PROFILE().' as up')
+                ->join(DatabaseConst::USER().' as u', 'up.user_id', '=', 'u.id')
+                ->select('up.*', 'u.name', 'u.phone', DB::raw($distanceKm.' as distance'))
                 ->where('up.is_open', true)
                 ->whereNotNull('up.latitude')
                 ->whereNotNull('up.longitude')
-                ->whereRaw($haversine . ' <= ?', [$radius])
+                ->whereRaw('earth_distance('.$origin.', ll_to_earth(up.latitude, up.longitude)) <= ?', [$radiusMeters])
                 ->when($keyword, function ($query, $keyword) {
                     return $query->where(function ($q) use ($keyword) {
-                        $q->where('up.store_name', 'like', '%' . $keyword . '%')
-                            ->orWhere('up.description', 'like', '%' . $keyword . '%');
+                        $q->where('up.store_name', 'like', '%'.$keyword.'%')
+                            ->orWhere('up.description', 'like', '%'.$keyword.'%');
                     });
                 })
-                ->orderBy('distance', 'asc');
+                ->orderByRaw('ll_to_earth(up.latitude, up.longitude) <-> '.$origin);
 
             $data = $query->get();
 
