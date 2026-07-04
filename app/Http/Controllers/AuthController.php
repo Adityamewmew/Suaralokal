@@ -33,10 +33,20 @@ class AuthController extends Controller
 
     private function redirectByRole($user)
     {
-        switch ($user->access_type) {
-            case UserConst::SUPERADMIN:
+        switch ($user->role) {
+            case UserConst::ROLE_SUPERADMIN:
+            case UserConst::ROLE_OJEK_ADMIN:
                 return redirect()->route('admin.dashboard');
+            case UserConst::ROLE_UMKM:
+                return redirect()->route('app.umkm.profile.edit');
+            case UserConst::ROLE_PENGGUNA:
+                return redirect()->to('/app');
+            case UserConst::ROLE_DRIVER:
+                return redirect()->to('/driver/orders');
             default:
+                if ($user->access_type === UserConst::SUPERADMIN) {
+                    return redirect()->route('admin.dashboard');
+                }
                 return redirect()->intended(route('admin.dashboard'));
         }
     }

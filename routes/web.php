@@ -3,7 +3,13 @@
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\SidebarMenuController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\BangjekOrderController;
+use App\Http\Controllers\Driver\DriverOrderController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\App\ConversationController;
+use App\Http\Controllers\App\DiscoveryController;
+use App\Http\Controllers\App\OrderController;
+use App\Http\Controllers\App\UmkmProfileController;
 use Illuminate\Support\Benchmark;
 use Illuminate\Support\Facades\Route;
 
@@ -56,3 +62,47 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     });
 
 });
+
+// SuaraLokal MVP App Routes
+Route::middleware(['auth', 'role:umkm'])->prefix('app/umkm/profile')->name('app.umkm.profile.')->group(function () {
+    Route::get('/', [UmkmProfileController::class, 'edit'])->name('edit');
+    Route::post('/save', [UmkmProfileController::class, 'doSave'])->name('save');
+});
+
+// Discovery — pengguna only
+Route::middleware(['auth', 'role:pengguna'])->prefix('app')->name('app.')->group(function () {
+    Route::get('/discovery', [DiscoveryController::class, 'index'])->name('discovery');
+});
+
+// Conversations — pengguna and UMKM share the same thread
+Route::middleware(['auth', 'role:pengguna,umkm'])->prefix('app/conversations')->name('app.conversations.')->group(function () {
+    Route::get('/{peerId}', [ConversationController::class, 'show'])->name('show');
+    Route::get('/{conversation}/messages', [ConversationController::class, 'messages'])->name('messages.index');
+    Route::post('/{conversation}/messages', [ConversationController::class, 'sendMessage'])->name('messages.store');
+});
+
+// Order creation — UMKM only
+Route::middleware(['auth', 'role:umkm'])->prefix('app/orders')->name('app.orders.')->group(function () {
+    Route::post('/{conversation}/create', [OrderController::class, 'store'])->name('store');
+});
+
+// Order confirmation — pengguna only
+Route::middleware(['auth', 'role:pengguna'])->prefix('app/orders')->name('app.orders.')->group(function () {
+    Route::post('/{order}/confirm', [OrderController::class, 'confirm'])->name('confirm');
+});
+
+// Admin Bangjek Assignment — ojek_admin & superadmin only
+Route::middleware(['auth', 'role:ojek_admin,superadmin'])->prefix('admin/bangjek-orders')->name('admin.bangjek_orders.')->group(function () {
+    Route::get('/', [BangjekOrderController::class, 'index'])->name('index');
+    Route::get('/detail/{id}', [BangjekOrderController::class, 'detail'])->name('detail');
+    Route::post('/assign/{id}', [BangjekOrderController::class, 'assign'])->name('assign');
+});
+
+// Driver Order Workflow — driver only
+Route::middleware(['auth', 'role:driver'])->prefix('driver/orders')->name('driver.orders.')->group(function () {
+    Route::get('/', [DriverOrderController::class, 'index'])->name('index');
+    Route::get('/{id}', [DriverOrderController::class, 'detail'])->name('detail');
+    Route::post('/{id}/pickup', [DriverOrderController::class, 'pickUp'])->name('pickup');
+    Route::post('/{id}/complete', [DriverOrderController::class, 'complete'])->name('complete');
+});
+

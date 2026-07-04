@@ -1,7 +1,8 @@
 import 'dotenv/config';
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 
-// You can specify any property from the mysql2 connection options
-const db = drizzle({ connection: { uri: process.env.DATABASE_URL } });
+const queryClient = postgres(process.env.DATABASE_URL!);
+const db = drizzle(queryClient);
 
 export default db;

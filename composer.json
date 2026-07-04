@@ -11,6 +11,8 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
+        "intervention/image": "^4.1",
+        "kreait/laravel-firebase": "^7.2",
         "laravel/framework": "^13.0",
         "laravel/tinker": "^3.0",
         "livewire/blaze": "1.0.11",

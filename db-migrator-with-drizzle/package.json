@@ -10,7 +10,7 @@
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.23",
-    "mysql2": "^3.22.4"
+    "postgres": "^3.4.9"
   },
   "devDependencies": {
     "@types/bun": "latest",

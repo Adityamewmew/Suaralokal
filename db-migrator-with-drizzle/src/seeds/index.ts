@@ -1,10 +1,12 @@
 import 'dotenv/config';
 import { superAdminSeeder } from './superAdminSeeder';
 import { sidebarSeeder } from './sidebarSeeder';
+import { suaraLokalSeeder } from './suaraLokalSeeder';
 
 const seeders: Array<{ name: string; fn: () => Promise<void> }> = [
     { name: 'superAdminSeeder', fn: superAdminSeeder },
     { name: 'sidebarSeeder', fn: sidebarSeeder },
+    { name: 'suaraLokalSeeder', fn: suaraLokalSeeder },
 ];
 
 async function runSeeders(): Promise<void> {

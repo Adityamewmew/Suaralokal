@@ -1,0 +1,26 @@
+{
+  "name": "SuaraLokal",
+  "short_name": "SuaraLokal",
+  "description": "Pesan produk UMKM lokal, diantar oleh Bangjek.",
+  "start_url": "/app/discovery",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f9fafb",
+  "theme_color": "#059669",
+  "lang": "id",
+  "categories": ["shopping", "food", "lifestyle"],
+  "icons": [
+    {
+      "src": "/images/logo-light.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/logo-light.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

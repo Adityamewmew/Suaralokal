@@ -1,12 +1,12 @@
 {
   "version": "7",
-  "dialect": "mysql",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1782710587448,
-      "tag": "0000_init",
+      "version": "7",
+      "when": 1783019649290,
+      "tag": "0000_suaralokal_mvp",
       "breakpoints": true
     }
   ]
