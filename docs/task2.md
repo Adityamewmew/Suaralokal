@@ -173,3 +173,10 @@
 - [x] `composer test` passes.
 - [x] `bun run build` passes.
 
+## Items To Change / Finish
+
+- [x] Ganti test harness MVP 2 dari SQLite in-memory ke PostgreSQL, atau buat integration suite yang benar-benar jalan di PostgreSQL target.
+- [x] Samakan implementasi discovery dengan spesifikasi MVP 2: kalau PostGIS yang diinginkan, ganti `earthdistance` ke PostGIS geometry; kalau `earthdistance` tetap dipakai, update `mvp2.md` agar tidak kontradiktif.
+- [x] Tambahkan test yang membuktikan discovery, settlement, dan event log tetap valid di database target, bukan hanya di SQLite.
+- [x] Pastikan flow yang menyentuh `settlements` dan `order_events` tidak bergantung pada DDL SQLite seperti `AUTOINCREMENT`.
+- [x] Verifikasi ulang `php artisan test` dan `bun run build` setelah perubahan database target selesai.

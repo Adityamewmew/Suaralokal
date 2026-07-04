@@ -22,7 +22,7 @@ MVP 2 tetap melayani aktor yang sama:
 
 MVP 2 harus mencakup peningkatan berikut:
 
-1. Pencarian UMKM berbasis PostGIS yang lebih matang.
+1. Pencarian UMKM berbasis pencarian radius spasial yang lebih matang.
 2. Pengalaman PWA yang lebih stabil di HP.
 3. Notifikasi yang lebih cepat dan lebih jelas.
 4. Validasi backend yang lebih ketat untuk chat dan order.
@@ -31,10 +31,12 @@ MVP 2 harus mencakup peningkatan berikut:
 
 ## 4. Fitur Wajib
 
-### 4.1 Pencarian UMKM PostGIS
+### 4.1 Pencarian UMKM Berbasis Spasial
 
-- Pencarian radius harus memakai PostGIS secara penuh.
-- Index spasial harus aktif untuk kolom lokasi.
+> **Catatan implementasi:** PostGIS tidak terpasang pada server Postgres target dan tidak bisa diaktifkan, jadi pencarian radius memakai ekstensi contrib `cube` + `earthdistance` (great-circle distance via `earth_distance(ll_to_earth(...), ...)`) dengan GiST expression index pada `ll_to_earth(latitude, longitude)`. Tidak ada kolom geometry PostGIS. Spesifikasi berikut membaca "spasial" sebagai path `earthdistance` tersebut; jika nantinya PostGIS tersedia, path ini boleh diganti ke geometry column tanpa mengubah kontrak pencarian.
+
+- Pencarian radius harus memakai fungsi spasial `earthdistance` (atau PostGIS bila tersedia) secara penuh, bukan kalkulasi Haversine di sisi aplikasi.
+- Index spasial (GiST pada `ll_to_earth`) harus aktif untuk mendukung query radius dan nearest-neighbour.
 - Hasil pencarian harus tetap terurut dari yang paling dekat.
 - Filter radius, kategori, dan kata kunci harus stabil di data yang lebih besar.
 - Lokasi UMKM harus disimpan konsisten dan tervalidasi.
@@ -143,7 +145,7 @@ Target fase ini:
 
 Prioritas implementasi:
 
-1. PostGIS hardening dan index spasial.
+1. Spasial hardening (`earthdistance` + index GiST; ganti ke PostGIS bila ekstensi tersedia) dan index spasial.
 2. Validasi backend chat dan order.
 3. Push notification dan queue reliability.
 4. UX polish mobile.
