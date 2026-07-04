@@ -100,7 +100,7 @@
 - [x] Create an SSE endpoint `/app/sse/orders` to stream real-time order status updates to active users.
 - [x] Add tests that fake the queue and prove notification jobs are dispatched for assignment and completion flows.
 - [x] Run `php artisan test --filter=SuaraLokalMvp2FlowTest`.
-- [ ] Commit with `feat: add queued push notifications and SSE real-time stream`.
+- [x] Commit with `feat: add queued push notifications and SSE real-time stream`.
 
 ## Task 4: Polish Mobile UX And PWA Stability
 
