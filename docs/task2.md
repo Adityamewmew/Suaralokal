@@ -77,7 +77,7 @@
 - [x] Ensure driver-facing order detail actions still check ownership before status transitions.
 - [x] Add regression tests for forged `peerId`, forged `conversation_id`, and forged `pengguna_id` values.
 - [x] Run `php artisan test --filter=SuaraLokalMvp2FlowTest`.
-- [ ] Commit with `feat: lock down chat and order ownership`.
+- [x] Commit with `feat: lock down chat and order ownership`.
 
 ## Task 3: Add Push Notifications And Queue Dispatch
 
