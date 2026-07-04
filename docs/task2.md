@@ -114,13 +114,13 @@
 - Modify: `vite.config.js`
 - Modify: `public/manifest.webmanifest`
 
-- [ ] Improve loading, empty, and error states on the discovery, chat, and order screens.
-- [ ] Tighten the bottom navigation and safe-area handling so the app feels correct on narrow HP screens.
-- [ ] Make the main action buttons easier to reach and scan with one thumb.
-- [ ] Cache core assets more aggressively through the PWA setup so the app remains usable on weak connections.
-- [ ] Make the app layout resilient when the browser is small, tall, or has mobile browser chrome visible.
-- [ ] Run `bun run build`.
-- [ ] Verify the app in Chrome DevTools mobile viewport and on the Android Emulator.
+- [x] Improve loading, empty, and error states on the discovery, chat, and order screens.
+- [x] Tighten the bottom navigation and safe-area handling so the app feels correct on narrow HP screens.
+- [x] Make the main action buttons easier to reach and scan with one thumb.
+- [x] Cache core assets more aggressively through the PWA setup so the app remains usable on weak connections.
+- [x] Make the app layout resilient when the browser is small, tall, or has mobile browser chrome visible.
+- [x] Run `bun run build`.
+- [x] Verify the app in Chrome DevTools mobile viewport and on the Android Emulator.
 - [ ] Commit with `feat: polish mobile pwa ux`.
 
 ## Task 5: Add Settlement And Operational Tracking

@@ -135,7 +135,21 @@
             + '</div></div>';
     }
 
-    // ponytail: 4s polling per MVP (3-5s allowed); WebSocket is out of scope for MVP.
+    // Real-time SSE updates for order status changes
+    if (typeof EventSource !== 'undefined') {
+        var sseSource = new EventSource("{{ route('app.sse.orders') }}");
+        sseSource.onmessage = function (event) {
+            try {
+                var data = JSON.parse(event.data);
+                if (data && data.order_id) {
+                    // Reload page to instantly update invoice status cards in real-time
+                    window.location.reload();
+                }
+            } catch (e) {}
+        };
+    }
+
+    // 4s polling fallback for messages
     var lastId = @count($messages) > 0 ? ({{ collect($messages)->last()->id ?? 0 }}) : 0;
     setInterval(function () {
         fetch(pollUrl, { headers: { 'Accept': 'application/json' } })

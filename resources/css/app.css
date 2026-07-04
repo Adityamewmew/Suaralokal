@@ -71,3 +71,38 @@ textarea {
 .dark textarea {
     border-color: oklch(.371 0 0) !important;
 }
+
+/* PWA safe areas and layout fixes */
+.pb-safe {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+}
+.pt-safe {
+    padding-top: calc(0.75rem + env(safe-area-inset-top));
+}
+
+/* Custom scrollbars for chat box */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.4);
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.6);
+}
+
+/* Skeleton loader animations */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+.skeleton {
+    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+}

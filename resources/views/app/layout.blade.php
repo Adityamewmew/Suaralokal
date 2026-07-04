@@ -25,9 +25,22 @@
 <body class="bg-gray-50 min-h-screen flex flex-col">
 
     {{-- Top Navigation Bar --}}
-    <header class="bg-white border-b border-gray-200 sticky top-0 z-40 safe-area-top">
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40 safe-area-top shadow-xs">
         <div class="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
-            <h1 class="text-lg font-bold text-emerald-600">SuaraLokal</h1>
+            <div class="flex items-center gap-2">
+                @if (!request()->routeIs('app.discovery') && auth()->check())
+                    @if (auth()->user()->role === 'driver')
+                        <a href="{{ route('driver.orders.index') }}" class="text-gray-500 hover:text-emerald-600 transition-colors mr-1">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        </a>
+                    @else
+                        <a href="{{ route('app.discovery') }}" class="text-gray-500 hover:text-emerald-600 transition-colors mr-1">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        </a>
+                    @endif
+                @endif
+                <h1 class="text-lg font-bold text-emerald-600">SuaraLokal</h1>
+            </div>
             <div class="flex items-center gap-3">
                 @auth
                     <span class="text-sm text-gray-500">{{ auth()->user()->name }}</span>
@@ -71,24 +84,27 @@
     {{-- Bottom Navigation --}}
     @hasSection('hide_bottom_nav')
     @else
-    <nav class="bg-white border-t border-gray-200 sticky bottom-0 z-40 safe-area-bottom">
+    <nav class="bg-white border-t border-gray-200 sticky bottom-0 z-40 pb-safe">
         <div class="max-w-lg mx-auto px-4 py-2 flex items-center justify-around">
             @if (auth()->user()?->role === 'pengguna')
-                <a href="{{ route('app.discovery') ?? '#' }}" class="flex flex-col items-center text-xs text-gray-500 hover:text-emerald-600">
+                @php $isActive = request()->routeIs('app.discovery'); @endphp
+                <a href="{{ route('app.discovery') ?? '#' }}" class="flex flex-col items-center text-xs transition-colors {{ $isActive ? 'text-emerald-600 font-semibold' : 'text-gray-500 hover:text-emerald-600' }}">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    <span>Cari</span>
+                    <span class="mt-0.5">Cari</span>
                 </a>
             @endif
             @if (auth()->user()?->role === 'umkm')
-                <a href="{{ route('app.umkm.profile.edit') }}" class="flex flex-col items-center text-xs text-gray-500 hover:text-emerald-600">
+                @php $isActive = request()->routeIs('app.umkm.profile.edit'); @endphp
+                <a href="{{ route('app.umkm.profile.edit') }}" class="flex flex-col items-center text-xs transition-colors {{ $isActive ? 'text-emerald-600 font-semibold' : 'text-gray-500 hover:text-emerald-600' }}">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0h4"></path></svg>
-                    <span>Profil Toko</span>
+                    <span class="mt-0.5">Profil Toko</span>
                 </a>
             @endif
             @if (auth()->user()?->role === 'driver')
-                <a href="{{ route('driver.orders.index') }}" class="flex flex-col items-center text-xs text-gray-500 hover:text-emerald-600">
+                @php $isActive = request()->routeIs('driver.orders.*'); @endphp
+                <a href="{{ route('driver.orders.index') }}" class="flex flex-col items-center text-xs transition-colors {{ $isActive ? 'text-emerald-600 font-semibold' : 'text-gray-500 hover:text-emerald-600' }}">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                    <span>Pesanan</span>
+                    <span class="mt-0.5">Pesanan</span>
                 </a>
             @endif
         </div>

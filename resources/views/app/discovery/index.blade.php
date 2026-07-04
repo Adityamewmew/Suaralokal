@@ -46,28 +46,39 @@
     <div class="space-y-3">
         @forelse ($data as $umkm)
             <a href="{{ route('app.conversations.show', $umkm->user_id) }}"
-               class="block bg-white rounded-xl border border-gray-200 shadow-sm p-4 active:bg-gray-50" data-lat="{{ $umkm->latitude }}" data-lng="{{ $umkm->longitude }}">
+               class="block bg-white rounded-xl border border-gray-200 shadow-xs p-4 transition-all duration-200 active:scale-[0.98] hover:shadow-md hover:border-emerald-200" data-lat="{{ $umkm->latitude }}" data-lng="{{ $umkm->longitude }}">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h3 class="font-semibold text-gray-800">{{ $umkm->store_name }}</h3>
+                        <h3 class="font-bold text-gray-800 text-base">{{ $umkm->store_name }}</h3>
                         @if (! empty($umkm->description))
-                            <p class="text-sm text-gray-500 line-clamp-2 mt-0.5">{{ $umkm->description }}</p>
+                            <p class="text-sm text-gray-500 line-clamp-2 mt-1 leading-relaxed">{{ $umkm->description }}</p>
                         @endif
                     </div>
-                    <span class="shrink-0 ml-3 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">{{ number_format($umkm->distance, 1) }} km</span>
+                    <span class="shrink-0 ml-3 text-xs font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full shadow-xs">{{ number_format($umkm->distance, 1) }} km</span>
                 </div>
-                <div class="flex items-center gap-3 mt-2 text-xs text-gray-400">
-                    <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full {{ $umkm->is_open ? 'bg-emerald-500' : 'bg-gray-300' }}"></span>{{ $umkm->is_open ? 'Buka' : 'Tutup' }}</span>
-                    @if (! empty($umkm->category))<span class="capitalize">{{ $umkm->category }}</span>@endif
+                <div class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-50 text-xs">
+                    <span class="inline-flex items-center gap-1.5 font-medium {{ $umkm->is_open ? 'text-emerald-600' : 'text-gray-400' }}">
+                        <span class="w-2.5 h-2.5 rounded-full {{ $umkm->is_open ? 'bg-emerald-500' : 'bg-gray-300' }}"></span>
+                        {{ $umkm->is_open ? 'Buka' : 'Tutup' }}
+                    </span>
+                    @if (! empty($umkm->category))
+                        <span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">{{ $umkm->category }}</span>
+                    @endif
                 </div>
             </a>
         @empty
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 text-center text-sm text-gray-500">
-                @if ($hasLocation)
-                    Belum ada UMKM terbuka dalam radius {{ $radius }} km.
-                @else
-                    Aktifkan lokasi untuk melihat UMKM terdekat.
-                @endif
+            <div class="bg-white rounded-xl border border-gray-200 shadow-xs p-8 text-center">
+                <div class="w-12 h-12 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </div>
+                <p class="text-sm font-medium text-gray-700">Tidak Ada Hasil</p>
+                <p class="text-xs text-gray-400 mt-1">
+                    @if ($hasLocation)
+                        Belum ada UMKM terdekat dalam radius {{ $radius }} km dengan kata kunci tersebut.
+                    @else
+                        Aktifkan lokasi atau gunakan titik koordinat manual untuk mulai menjelajahi toko sekitar.
+                    @endif
+                </p>
             </div>
         @endforelse
     </div>
