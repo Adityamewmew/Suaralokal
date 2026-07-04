@@ -74,6 +74,8 @@ Route::middleware(['auth', 'role:pengguna'])->prefix('app')->name('app.')->group
     Route::get('/discovery', [DiscoveryController::class, 'index'])->name('discovery');
 });
 
+Route::redirect('/app', '/app/discovery');
+
 // Conversations — pengguna and UMKM share the same thread
 Route::middleware(['auth', 'role:pengguna,umkm'])->prefix('app/conversations')->name('app.conversations.')->group(function () {
     Route::get('/{peerId}', [ConversationController::class, 'show'])->name('show');

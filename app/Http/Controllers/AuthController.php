@@ -40,7 +40,7 @@ class AuthController extends Controller
             case UserConst::ROLE_UMKM:
                 return redirect()->route('app.umkm.profile.edit');
             case UserConst::ROLE_PENGGUNA:
-                return redirect()->to('/app');
+                return redirect()->route('app.discovery');
             case UserConst::ROLE_DRIVER:
                 return redirect()->to('/driver/orders');
             default:
