@@ -121,7 +121,7 @@
 - [x] Make the app layout resilient when the browser is small, tall, or has mobile browser chrome visible.
 - [x] Run `bun run build`.
 - [x] Verify the app in Chrome DevTools mobile viewport and on the Android Emulator.
-- [ ] Commit with `feat: polish mobile pwa ux`.
+- [x] Commit with `feat: polish mobile pwa ux`.
 
 ## Task 5: Add Settlement And Operational Tracking
 
