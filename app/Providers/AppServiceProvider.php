@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $usecase = app(SidebarMenuUsecase::class);
-            $accessType = Auth::user()->access_type;
+            $accessType = (int) (Auth::user()->access_type ?? 0);
             $groups = $usecase->getGroupKeys();
             $sidebarMenus = [];
 
