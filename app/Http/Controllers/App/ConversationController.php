@@ -31,6 +31,24 @@ class ConversationController extends Controller
     {
         $user = auth()->user();
 
+        // Check peer role validation
+        $peer = \Illuminate\Support\Facades\DB::table(\App\Constants\DatabaseConst::USER())
+            ->where('id', $peerId)
+            ->whereNull('deleted_at')
+            ->first();
+
+        if (! $peer) {
+            abort(404, 'User tidak ditemukan.');
+        }
+
+        if ($user->role === UserConst::ROLE_PENGGUNA && $peer->role !== UserConst::ROLE_UMKM) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        if ($user->role === UserConst::ROLE_UMKM && $peer->role !== UserConst::ROLE_PENGGUNA) {
+            abort(403, 'Akses ditolak.');
+        }
+
         // Resolve sides by role: pengguna chats with an UMKM, UMKM chats with a pengguna.
         if ($user->role === UserConst::ROLE_PENGGUNA) {
             $penggunaId = $user->id;
@@ -85,9 +103,16 @@ class ConversationController extends Controller
             return $errorResponse;
         }
 
+        $userId = auth()->user()->id;
+
+        // Derive peerId from the conversation record instead of request payload
+        $convResult = $this->usecase->getConversationById($conversationId);
+        $conv = $convResult['data'] ?? [];
+        $peerId = (int) $conv['pengguna_id'] === $userId ? (int) $conv['umkm_id'] : (int) $conv['pengguna_id'];
+
         $process = $this->usecase->sendMessage(
             conversationId: $conversationId,
-            senderId: auth()->user()->id,
+            senderId: $userId,
             content: (string) $request->input('content', '')
         );
 
@@ -96,7 +121,7 @@ class ConversationController extends Controller
         }
 
         if ($process['success'] ?? false) {
-            return redirect()->route('app.conversations.show', $request->get('peerId'))->with('success', ResponseConst::SUCCESS_MESSAGE_CREATED);
+            return redirect()->route('app.conversations.show', $peerId)->with('success', ResponseConst::SUCCESS_MESSAGE_CREATED);
         }
 
         return redirect()->back()->with('error', $process['message'] ?? ResponseConst::DEFAULT_ERROR_MESSAGE);

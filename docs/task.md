@@ -138,6 +138,8 @@
 - [x] Add routes for opening a conversation, posting messages, and polling messages.
 - [x] Build mobile chat screen with message list, composer, and polling endpoint.
 - [x] Ensure pengguna and target UMKM can access the same conversation.
+- [x] Reject tampered `peerId` values that do not match the logged-in user's allowed counterpart role or do not belong to the conversation being opened.
+- [x] Add a test that proves a forged `peerId` cannot open or reuse an unrelated conversation.
 - [x] Add a test proving duplicate conversations are not created for the same pengguna and UMKM.
 - [x] Run `composer test -- --filter=SuaraLokalMvpFlowTest`.
 - [ ] Commit with `feat: add chat conversations`.
@@ -155,7 +157,11 @@
 - [x] Add `createFromConversation` method for UMKM.
 - [x] Add `confirmByPengguna` method that changes `tunggu_konfirm` to `cari_driver`.
 - [x] Enforce `cod_talangan` maximum item total of Rp100.000.
+- [x] Derive `pengguna_id` from the conversation and authenticated UMKM context instead of trusting request payload.
+- [x] Reject order creation if `conversation_id` does not belong to the authenticated UMKM and selected pengguna pair.
+- [x] Reject confirmation if the order does not belong to the authenticated pengguna, even when a `peer_id` is present in the request.
 - [x] Render invoice card inside chat.
+- [x] Add tests that prove tampered `conversation_id`, `pengguna_id`, or `peer_id` values are rejected.
 - [x] Add a test proving confirmed orders appear with `cari_driver` status.
 - [x] Add a test proving `cod_talangan` is rejected above Rp100.000.
 - [x] Run `composer test -- --filter=SuaraLokalMvpFlowTest`.
@@ -240,3 +246,20 @@
 - [x] `composer test` passes.
 - [x] `bun run build` passes.
 
+## Remaining MVP Tasks
+
+- [ ] Commit `feat: add nearby umkm discovery`.
+- [x] Reject tampered `peerId` values that do not match the logged-in user's allowed counterpart role or do not belong to the conversation being opened.
+- [x] Add a test that proves a forged `peerId` cannot open or reuse an unrelated conversation.
+- [ ] Commit `feat: add chat conversations`.
+- [x] Derive `pengguna_id` from the conversation and authenticated UMKM context instead of trusting request payload.
+- [x] Reject order creation if `conversation_id` does not belong to the authenticated UMKM and selected pengguna pair.
+- [x] Reject confirmation if the order does not belong to the authenticated pengguna, even when a `peer_id` is present in the request.
+- [x] Add tests that prove tampered `conversation_id`, `pengguna_id`, or `peer_id` values are rejected.
+- [ ] Commit `feat: add chat based order flow`.
+- [ ] Commit `feat: add bangjek order assignment`.
+- [ ] Commit `feat: add driver delivery workflow`.
+- [ ] Commit `feat: add suaralokal pwa shell`.
+- [ ] Manually verify the mobile flow in browser device mode.
+- [ ] Manually verify the PWA route in Android Emulator.
+- [ ] Commit `test: cover suaralokal mvp flow`.
