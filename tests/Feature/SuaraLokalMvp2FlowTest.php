@@ -116,3 +116,129 @@ test('driver actions check driver ownership before status transitions', function
         ->assertStatus(302)
         ->assertSessionHas('error', 'Anda tidak ditugaskan untuk pesanan ini.');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Task 3: Add Push Notifications And Queue Dispatch + SSE
+|--------------------------------------------------------------------------
+*/
+
+test('assigning driver dispatches SendPushNotificationJob and stores SSE event', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+
+    $ojekAdmin = User::factory()->create(['id' => 3, 'role' => UserConst::ROLE_OJEK_ADMIN]);
+    User::factory()->create(['id' => 5, 'role' => UserConst::ROLE_DRIVER]);
+    User::factory()->create(['id' => 1, 'role' => UserConst::ROLE_PENGGUNA]);
+    User::factory()->create(['id' => 2, 'role' => UserConst::ROLE_UMKM]);
+
+    DB::table(DatabaseConst::ORDER())->insert([
+        'id' => 100,
+        'pengguna_id' => 1,
+        'umkm_id' => 2,
+        'order_status' => 'cari_driver',
+        'total_items_price' => 30000,
+        'shipping_fee' => 5000,
+        'payment_method' => 'cod_talangan',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    // Mock OrderUsecase for admin assignment to pass
+    $this->mock(OrderUsecase::class, function ($mock) {
+        $mock->shouldReceive('assignDriver')
+            ->once()
+            ->with(100, 5)
+            ->andReturnUsing(function ($id, $driverId) {
+                DB::table(DatabaseConst::ORDER())->where('id', $id)->update(['driver_id' => $driverId]);
+                return [
+                    'success' => true,
+                    'message' => 'Driver berhasil ditugaskan.',
+                ];
+            });
+    });
+
+    $this->actingAs($ojekAdmin)
+        ->post(route('admin.bangjek_orders.assign', 100), ['driver_id' => 5])
+        ->assertRedirect(route('admin.bangjek_orders.index'))
+        ->assertSessionHas('success');
+
+    // Assert push notification job was dispatched
+    \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\SendPushNotificationJob::class);
+
+    // Assert SSE update cache key was populated
+    expect(\Illuminate\Support\Facades\Cache::has('sse_order_updates_1'))->toBeTrue()
+        ->and(\Illuminate\Support\Facades\Cache::has('sse_order_updates_2'))->toBeTrue()
+        ->and(\Illuminate\Support\Facades\Cache::has('sse_order_updates_5'))->toBeTrue();
+});
+
+test('driver actions dispatch SendPushNotificationJob and SSE events', function () {
+    \Illuminate\Support\Facades\Queue::fake();
+
+    $driver = User::factory()->create(['id' => 5, 'role' => UserConst::ROLE_DRIVER]);
+    User::factory()->create(['id' => 1, 'role' => UserConst::ROLE_PENGGUNA]);
+    User::factory()->create(['id' => 2, 'role' => UserConst::ROLE_UMKM]);
+
+    DB::table(DatabaseConst::ORDER())->insert([
+        'id' => 100,
+        'pengguna_id' => 1,
+        'umkm_id' => 2,
+        'driver_id' => 5,
+        'order_status' => 'dijemput',
+        'total_items_price' => 30000,
+        'shipping_fee' => 5000,
+        'payment_method' => 'cod_talangan',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $this->mock(OrderUsecase::class, function ($mock) {
+        $mock->shouldReceive('markPickedUp')
+            ->once()
+            ->with(100, 5)
+            ->andReturn([
+                'success' => true,
+                'message' => 'Status pesanan diubah ke diantar.',
+            ]);
+    });
+
+    $this->actingAs($driver)
+        ->post(route('driver.orders.pickup', 100))
+        ->assertRedirect(route('driver.orders.detail', 100))
+        ->assertSessionHas('success');
+
+    // Assert push notification job was dispatched
+    \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\SendPushNotificationJob::class);
+});
+
+test('SSE route requires authentication and streams events', function () {
+    $pengguna = User::factory()->create(['id' => 1, 'role' => UserConst::ROLE_PENGGUNA]);
+
+    // Guest gets redirected to login
+    $this->get(route('app.sse.orders'))
+        ->assertRedirect(route('login'));
+
+    // Authenticated user can connect
+    $this->actingAs($pengguna);
+
+    // Let's populate the SSE cache with a mock event
+    \Illuminate\Support\Facades\Cache::put('sse_order_updates_1', [
+        [
+            'order_id' => 100,
+            'status' => 'dijemput',
+            'updated_at' => '2026-07-04 12:00:00'
+        ]
+    ]);
+
+    // Request the stream.
+    $response = $this->get(route('app.sse.orders'))
+        ->assertStatus(200);
+
+    // Execute StreamedResponse callback to trigger Cache::pull
+    ob_start();
+    $response->sendContent();
+    ob_end_clean();
+
+    // Verify cache was cleared (pulled) after the request
+    expect(\Illuminate\Support\Facades\Cache::has('sse_order_updates_1'))->toBeFalse();
+});
+

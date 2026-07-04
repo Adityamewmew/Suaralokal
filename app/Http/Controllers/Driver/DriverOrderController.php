@@ -17,7 +17,8 @@ class DriverOrderController extends Controller
     ];
 
     public function __construct(
-        protected OrderUsecase $usecase
+        protected OrderUsecase $usecase,
+        protected \App\Usecase\NotificationUsecase $notificationUsecase
     ) {}
 
     /**
@@ -72,6 +73,8 @@ class DriverOrderController extends Controller
         $process = $this->usecase->markPickedUp($id, $driverId);
 
         if ($process['success'] ?? false) {
+            $this->notificationUsecase->triggerOrderUpdate($id, 'diantar');
+
             return redirect()
                 ->route('driver.orders.detail', $id)
                 ->with('success', 'Barang sudah diambil, status diubah ke diantar.');
@@ -101,6 +104,8 @@ class DriverOrderController extends Controller
         $process = $this->usecase->completeWithProof($id, $driverId, $proof);
 
         if ($process['success'] ?? false) {
+            $this->notificationUsecase->triggerOrderUpdate($id, 'selesai');
+
             return redirect()
                 ->route('driver.orders.detail', $id)
                 ->with('success', 'Pesanan selesai! Bukti pengiriman tersimpan.');

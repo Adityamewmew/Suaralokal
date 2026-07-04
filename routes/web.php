@@ -10,6 +10,7 @@ use App\Http\Controllers\App\ConversationController;
 use App\Http\Controllers\App\DiscoveryController;
 use App\Http\Controllers\App\OrderController;
 use App\Http\Controllers\App\UmkmProfileController;
+use App\Http\Controllers\App\SseController;
 use Illuminate\Support\Benchmark;
 use Illuminate\Support\Facades\Route;
 
@@ -75,6 +76,10 @@ Route::middleware(['auth', 'role:pengguna'])->prefix('app')->name('app.')->group
 });
 
 Route::redirect('/app', '/app/discovery');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/app/sse/orders', [SseController::class, 'streamOrders'])->name('app.sse.orders');
+});
 
 // Conversations — pengguna and UMKM share the same thread
 Route::middleware(['auth', 'role:pengguna,umkm'])->prefix('app/conversations')->name('app.conversations.')->group(function () {

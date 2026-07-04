@@ -17,7 +17,8 @@ class BangjekOrderController extends Controller
     ];
 
     public function __construct(
-        protected OrderUsecase $usecase
+        protected OrderUsecase $usecase,
+        protected \App\Usecase\NotificationUsecase $notificationUsecase
     ) {}
 
     /**
@@ -71,6 +72,8 @@ class BangjekOrderController extends Controller
         $process = $this->usecase->assignDriver($id, $driverId);
 
         if ($process['success'] ?? false) {
+            $this->notificationUsecase->triggerOrderUpdate($id, 'dijemput');
+
             return redirect()
                 ->route('admin.bangjek_orders.index')
                 ->with('success', 'Driver berhasil ditugaskan.');
