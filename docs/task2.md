@@ -135,13 +135,13 @@
 - Modify: `routes/web.php`
 - Test: `tests/Feature/SuaraLokalMvp2FlowTest.php`
 
-- [ ] Add a settlement table or equivalent structure to track COD Talangan reimbursement and settlement state.
-- [ ] Add settlement states that make operational handoff clear, such as waiting for settlement and settled.
-- [ ] Add an admin settlement dashboard that can filter, inspect, and close out pending items.
-- [ ] Store order settlement history so the admin can trace what happened without reading raw logs.
-- [ ] Keep the settlement logic separate from normal order status transitions.
-- [ ] Add tests proving settlement rows are created and state transitions stay consistent.
-- [ ] Run `php artisan test --filter=SuaraLokalMvp2FlowTest`.
+- [x] Add a settlement table or equivalent structure to track COD Talangan reimbursement and settlement state.
+- [x] Add settlement states that make operational handoff clear, such as waiting for settlement and settled.
+- [x] Add an admin settlement dashboard that can filter, inspect, and close out pending items.
+- [x] Store order settlement history so the admin can trace what happened without reading raw logs.
+- [x] Keep the settlement logic separate from normal order status transitions.
+- [x] Add tests proving settlement rows are created and state transitions stay consistent.
+- [x] Run `php artisan test --filter=SuaraLokalMvp2FlowTest`.
 - [ ] Commit with `feat: add settlement tracking`.
 
 ## Task 6: Add Audit And Regression Coverage

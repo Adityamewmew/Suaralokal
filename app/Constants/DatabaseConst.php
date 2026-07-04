@@ -36,6 +36,11 @@ class DatabaseConst
         return 'order_items';
     }
 
+    public static function SETTLEMENT(): string
+    {
+        return 'settlements';
+    }
+
     public static function SIDEBAR_MENU(): string
     {
         return 'sidebar_menus';

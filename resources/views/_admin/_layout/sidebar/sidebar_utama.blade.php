@@ -19,6 +19,20 @@
             <span class="relative">Antrean Bangjek</span>
         </a>
     </li>
+
+    @php
+        $isActiveSettlement = request()->routeIs('admin.settlements.*');
+    @endphp
+    <li class="mb-1.5">
+        <a navigate
+            class="group flex items-center gap-x-3 py-2.5 px-3.5 {{ $isActiveSettlement ? $activeClass : $inactiveClass }} text-sm font-semibold rounded-xl border transition-all duration-200"
+            href="{{ route('admin.settlements.index') }}">
+            <span class="relative flex items-center justify-center size-5">
+                💰
+            </span>
+            <span class="relative">Reimburse Talangan</span>
+        </a>
+    </li>
 @endif
 
 @if (!empty($sidebarMenus['utama']))

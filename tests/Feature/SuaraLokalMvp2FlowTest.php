@@ -14,6 +14,8 @@ beforeEach(function () {
     DB::statement('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT, email_verified_at TEXT, password TEXT, remember_token TEXT, role TEXT, phone TEXT, deleted_at TEXT, access_type INTEGER, created_at TEXT, updated_at TEXT)');
     DB::statement('CREATE TABLE IF NOT EXISTS conversations (id INTEGER PRIMARY KEY AUTOINCREMENT, pengguna_id INTEGER, umkm_id INTEGER, created_at TEXT, updated_at TEXT)');
     DB::statement('CREATE TABLE IF NOT EXISTS orders (id INTEGER PRIMARY KEY AUTOINCREMENT, pengguna_id INTEGER, umkm_id INTEGER, conversation_id INTEGER, total_items_price REAL, shipping_fee REAL, payment_method TEXT, order_status TEXT, driver_id INTEGER, proof_of_delivery_url TEXT, created_at TEXT, updated_at TEXT)');
+    DB::statement('CREATE TABLE IF NOT EXISTS settlements (id INTEGER PRIMARY KEY AUTOINCREMENT, order_id INTEGER, amount REAL, status TEXT, settled_at TEXT, created_at TEXT, updated_at TEXT)');
+    DB::statement('CREATE TABLE IF NOT EXISTS umkm_profiles (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, store_name TEXT, description TEXT, address TEXT, phone TEXT, category TEXT, is_open INTEGER, latitude REAL, longitude REAL)');
 });
 
 /*
@@ -241,4 +243,116 @@ test('SSE route requires authentication and streams events', function () {
     // Verify cache was cleared (pulled) after the request
     expect(\Illuminate\Support\Facades\Cache::has('sse_order_updates_1'))->toBeFalse();
 });
+
+/*
+|--------------------------------------------------------------------------
+| Task 5: Add Settlement And Operational Tracking
+|--------------------------------------------------------------------------
+*/
+
+test('completing COD order creates settlement record', function () {
+    $driver = User::factory()->create(['id' => 5, 'role' => UserConst::ROLE_DRIVER]);
+    User::factory()->create(['id' => 1, 'role' => UserConst::ROLE_PENGGUNA]);
+    User::factory()->create(['id' => 2, 'role' => UserConst::ROLE_UMKM]);
+
+    DB::table(DatabaseConst::UMKM_PROFILE())->insert([
+        'user_id' => 2,
+        'store_name' => 'Toko Sederhana',
+        'latitude' => -8.10,
+        'longitude' => 114.10,
+        'is_open' => 1,
+    ]);
+
+    DB::table(DatabaseConst::ORDER())->insert([
+        'id' => 100,
+        'pengguna_id' => 1,
+        'umkm_id' => 2,
+        'driver_id' => 5,
+        'order_status' => 'diantar',
+        'total_items_price' => 30000,
+        'shipping_fee' => 5000,
+        'payment_method' => 'cod_talangan',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $fakeImage = \Illuminate\Http\UploadedFile::fake()->image('proof.jpg');
+
+    $this->actingAs($driver)
+        ->post(route('driver.orders.complete', 100), ['proof' => $fakeImage])
+        ->assertRedirect(route('driver.orders.detail', 100))
+        ->assertSessionHas('success');
+
+    // Assert settlement was created with status menunggu_reimburse and correct amount (30000 + 5000 = 35000)
+    $settlement = DB::table('settlements')->where('order_id', 100)->first();
+    expect($settlement)->not->toBeNull()
+        ->and((float) $settlement->amount)->toBe(35000.0)
+        ->and($settlement->status)->toBe('menunggu_reimburse');
+});
+
+test('unauthorized roles cannot access settlements', function () {
+    $pengguna = User::factory()->create(['id' => 1, 'role' => UserConst::ROLE_PENGGUNA]);
+
+    $this->actingAs($pengguna)
+        ->get(route('admin.settlements.index'))
+        ->assertStatus(403);
+});
+
+test('admin can view and close out settlement', function () {
+    $ojekAdmin = User::factory()->create(['id' => 3, 'role' => UserConst::ROLE_OJEK_ADMIN]);
+    $driver = User::factory()->create(['id' => 5, 'role' => UserConst::ROLE_DRIVER]);
+    User::factory()->create(['id' => 1, 'role' => UserConst::ROLE_PENGGUNA]);
+    User::factory()->create(['id' => 2, 'role' => UserConst::ROLE_UMKM]);
+
+    DB::table(DatabaseConst::UMKM_PROFILE())->insert([
+        'user_id' => 2,
+        'store_name' => 'Toko Sederhana',
+        'latitude' => -8.10,
+        'longitude' => 114.10,
+        'is_open' => 1,
+    ]);
+
+    DB::table(DatabaseConst::ORDER())->insert([
+        'id' => 100,
+        'pengguna_id' => 1,
+        'umkm_id' => 2,
+        'driver_id' => 5,
+        'order_status' => 'selesai',
+        'total_items_price' => 30000,
+        'shipping_fee' => 5000,
+        'payment_method' => 'cod_talangan',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    DB::table('settlements')->insert([
+        'id' => 1,
+        'order_id' => 100,
+        'amount' => 35000,
+        'status' => 'menunggu_reimburse',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $this->actingAs($ojekAdmin);
+
+    // Can access index
+    $this->get(route('admin.settlements.index'))
+        ->assertStatus(200);
+
+    // Can access detail
+    $this->get(route('admin.settlements.detail', 1))
+        ->assertStatus(200);
+
+    // Can settle
+    $this->post(route('admin.settlements.settle', 1))
+        ->assertRedirect(route('admin.settlements.index'))
+        ->assertSessionHas('success');
+
+    // Assert status updated in DB
+    $settlement = DB::table('settlements')->where('id', 1)->first();
+    expect($settlement->status)->toBe('selesai_reimburse')
+        ->and($settlement->settled_at)->not->toBeNull();
+});
+
 

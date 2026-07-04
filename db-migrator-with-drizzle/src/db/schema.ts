@@ -235,3 +235,16 @@ export const orderItemsTable = pgTable('order_items', {
 }, (t) => [
     index('order_items_order_id_index').on(t.order_id),
 ]);
+
+export const settlementsTable = pgTable('settlements', {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    order_id: bigint('order_id', { mode: 'number' }).notNull().references(() => ordersTable.id),
+    amount: numeric('amount', { precision: 12, scale: 2 }).notNull().default('0'),
+    status: varchar('status', { length: 30 }).notNull().default('menunggu_reimburse'), // menunggu_reimburse, selesai_reimburse
+    settled_at: timestamp('settled_at', { mode: 'date' }),
+    created_at: timestamp('created_at', { mode: 'date' }),
+    updated_at: timestamp('updated_at', { mode: 'date' }),
+}, (t) => [
+    index('settlements_order_id_index').on(t.order_id),
+    index('settlements_status_index').on(t.status),
+]);

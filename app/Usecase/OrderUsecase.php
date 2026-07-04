@@ -502,13 +502,36 @@ class OrderUsecase extends Usecase
             // Store proof image
             $path = $proof->store('proof-of-delivery', 'public');
 
-            DB::table(DatabaseConst::ORDER())
-                ->where('id', $orderId)
-                ->update([
-                    'order_status' => 'selesai',
-                    'proof_of_delivery_url' => $path,
-                    'updated_at' => now(),
-                ]);
+            DB::beginTransaction();
+            try {
+                DB::table(DatabaseConst::ORDER())
+                    ->where('id', $orderId)
+                    ->update([
+                        'order_status' => 'selesai',
+                        'proof_of_delivery_url' => $path,
+                        'updated_at' => now(),
+                    ]);
+
+                // If COD Talangan, create a settlement record
+                if ($order->payment_method === 'cod_talangan') {
+                    $grandTotal = (float) $order->total_items_price + (float) $order->shipping_fee;
+                    $existing = DB::table(DatabaseConst::SETTLEMENT())->where('order_id', $orderId)->first();
+                    if (! $existing) {
+                        DB::table(DatabaseConst::SETTLEMENT())->insert([
+                            'order_id' => $orderId,
+                            'amount' => $grandTotal,
+                            'status' => 'menunggu_reimburse',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+
+                DB::commit();
+            } catch (Exception $txEx) {
+                DB::rollBack();
+                throw $txEx;
+            }
 
             return Response::buildSuccess(message: 'Pesanan selesai, bukti pengiriman tersimpan.');
         } catch (Exception $e) {

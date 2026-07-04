@@ -15,6 +15,13 @@
       "when": 1783164911127,
       "tag": "0001_suaralokal_earthdistance",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783166967394,
+      "tag": "0002_add_settlements_table",
+      "breakpoints": true
     }
   ]
 }

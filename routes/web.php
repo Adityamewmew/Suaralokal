@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\SidebarMenuController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BangjekOrderController;
+use App\Http\Controllers\Admin\SettlementController;
 use App\Http\Controllers\Driver\DriverOrderController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\App\ConversationController;
@@ -111,5 +112,12 @@ Route::middleware(['auth', 'role:driver'])->prefix('driver/orders')->name('drive
     Route::get('/{id}', [DriverOrderController::class, 'detail'])->name('detail');
     Route::post('/{id}/pickup', [DriverOrderController::class, 'pickUp'])->name('pickup');
     Route::post('/{id}/complete', [DriverOrderController::class, 'complete'])->name('complete');
+});
+
+// Admin Settlements — ojek_admin & superadmin only
+Route::middleware(['auth', 'role:ojek_admin,superadmin'])->prefix('admin/settlements')->name('admin.settlements.')->group(function () {
+    Route::get('/', [SettlementController::class, 'index'])->name('index');
+    Route::get('/{id}', [SettlementController::class, 'detail'])->name('detail');
+    Route::post('/{id}/settle', [SettlementController::class, 'settle'])->name('settle');
 });
 
