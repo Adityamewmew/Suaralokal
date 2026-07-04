@@ -16,9 +16,12 @@ class OrderUsecase extends Usecase
     /** @var int Maximum total items price allowed for cod_talangan (Rp100.000). */
     private const COD_TALANGAN_LIMIT = 100000;
 
-    public function __construct()
+    protected OrderEventUsecase $eventUsecase;
+
+    public function __construct(OrderEventUsecase $eventUsecase)
     {
         $this->className = __CLASS__;
+        $this->eventUsecase = $eventUsecase;
     }
 
     /**
@@ -104,6 +107,13 @@ class OrderUsecase extends Usecase
                 ]);
             }
 
+            $this->eventUsecase->logEvent($orderId, 'create', [
+                'actor_id' => $umkmId,
+                'role' => 'umkm',
+                'payment_method' => $data['payment_method'],
+                'amount' => $totalItemsPrice + (float) $data['shipping_fee'],
+            ]);
+
             DB::commit();
 
             $order = DB::table(DatabaseConst::ORDER())->where('id', $orderId)->first();
@@ -157,6 +167,11 @@ class OrderUsecase extends Usecase
                     'order_status' => 'cari_driver',
                     'updated_at' => now(),
                 ]);
+
+            $this->eventUsecase->logEvent($orderId, 'confirm', [
+                'actor_id' => $penggunaId,
+                'role' => 'pengguna',
+            ]);
 
             $order = DB::table(DatabaseConst::ORDER())->where('id', $orderId)->first();
 
@@ -370,6 +385,12 @@ class OrderUsecase extends Usecase
                     'updated_at' => now(),
                 ]);
 
+            $this->eventUsecase->logEvent($orderId, 'assign', [
+                'driver_id' => $driverId,
+                'driver_name' => $driver->name,
+                'actor_id' => auth()->id() ?? 0,
+            ]);
+
             DB::commit();
 
             return Response::buildSuccess(
@@ -459,6 +480,11 @@ class OrderUsecase extends Usecase
                     'updated_at' => now(),
                 ]);
 
+            $this->eventUsecase->logEvent($orderId, 'pickup', [
+                'actor_id' => $driverId,
+                'role' => 'driver',
+            ]);
+
             return Response::buildSuccess(message: 'Status pesanan diubah ke diantar.');
         } catch (Exception $e) {
             Log::error(
@@ -526,6 +552,12 @@ class OrderUsecase extends Usecase
                         ]);
                     }
                 }
+
+                $this->eventUsecase->logEvent($orderId, 'complete', [
+                    'actor_id' => $driverId,
+                    'role' => 'driver',
+                    'proof_path' => $path,
+                ]);
 
                 DB::commit();
             } catch (Exception $txEx) {

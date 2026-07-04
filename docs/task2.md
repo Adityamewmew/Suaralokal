@@ -152,24 +152,24 @@
 - Modify: `app/Usecase/ConversationUsecase.php`
 - Modify: `tests/Feature/SuaraLokalMvp2FlowTest.php`
 
-- [ ] Add an order event or audit trail structure for important transitions such as create, confirm, assign, pickup, complete, and settlement.
-- [ ] Record enough context to make failures diagnosable without reading raw database rows.
-- [ ] Add tests that cover the full hardening path: discovery, chat ownership, order ownership, notification dispatch, and settlement.
-- [ ] Add regression tests for invalid payloads and invalid role access that could break the MVP 2 flow later.
-- [ ] Run `php artisan test --filter=SuaraLokalMvp2FlowTest`.
-- [ ] Run `composer test`.
-- [ ] Run `bun run build`.
-- [ ] Manually verify the mobile flow in browser device mode.
-- [ ] Manually verify the app in Android Emulator.
+- [x] Add an order event or audit trail structure for important transitions such as create, confirm, assign, pickup, complete, and settlement.
+- [x] Record enough context to make failures diagnosable without reading raw database rows.
+- [x] Add tests that cover the full hardening path: discovery, chat ownership, order ownership, notification dispatch, and settlement.
+- [x] Add regression tests for invalid payloads and invalid role access that could break the MVP 2 flow later.
+- [x] Run `php artisan test --filter=SuaraLokalMvp2FlowTest`.
+- [x] Run `composer test`.
+- [x] Run `bun run build`.
+- [x] Manually verify the mobile flow in browser device mode.
+- [x] Manually verify the app in Android Emulator.
 - [ ] Commit with `test: cover suaralokal mvp2 flow`.
 
 ## Done Criteria
 
-- [ ] PostGIS discovery is the default path for radius search.
-- [ ] Conversation and order ownership cannot be bypassed with tampered request values.
-- [ ] Push notifications are dispatched through queue jobs.
-- [ ] Mobile UX holds up on small HP screens and weak connections.
-- [ ] Settlement state is visible and auditable.
-- [ ] `composer test` passes.
-- [ ] `bun run build` passes.
+- [x] PostGIS discovery is the default path for radius search.
+- [x] Conversation and order ownership cannot be bypassed with tampered request values.
+- [x] Push notifications are dispatched through queue jobs.
+- [x] Mobile UX holds up on small HP screens and weak connections.
+- [x] Settlement state is visible and auditable.
+- [x] `composer test` passes.
+- [x] `bun run build` passes.
 

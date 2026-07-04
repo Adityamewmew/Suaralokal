@@ -59,6 +59,63 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Audit Trail (Riwayat Pesanan) --}}
+            <div class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-gray-200 dark:border-neutral-700 p-6">
+                <h3 class="text-lg font-bold text-gray-800 dark:text-neutral-200 mb-4">Riwayat Aktivitas Pesanan</h3>
+                
+                @if (count($events) > 0)
+                    <div class="flow-root">
+                        <ul role="list" class="-mb-8">
+                            @foreach ($events as $idx => $event)
+                                <li>
+                                    <div class="relative pb-8">
+                                        @if ($idx !== count($events) - 1)
+                                            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200 dark:bg-neutral-700" aria-hidden="true"></span>
+                                        @endif
+                                        <div class="relative flex space-x-3">
+                                            <div>
+                                                <span class="h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white dark:ring-neutral-800 {{ 
+                                                    $event->event_type === 'create' ? 'bg-blue-100 text-blue-600' : (
+                                                    $event->event_type === 'confirm' ? 'bg-sky-100 text-sky-600' : (
+                                                    $event->event_type === 'assign' ? 'bg-yellow-100 text-yellow-600' : (
+                                                    $event->event_type === 'pickup' ? 'bg-purple-100 text-purple-600' : (
+                                                    $event->event_type === 'complete' ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-600'
+                                                    ))))
+                                                }}">
+                                                    @if ($event->event_type === 'create') 📝 @elseif ($event->event_type === 'confirm') ✅ @elseif ($event->event_type === 'assign') 👤 @elseif ($event->event_type === 'pickup') 📦 @elseif ($event->event_type === 'complete') 🏁 @else 💰 @endif
+                                                </span>
+                                            </div>
+                                            <div class="flex-1 min-w-0 pt-1.5 flex justify-between space-x-4">
+                                                <div>
+                                                    <p class="text-sm font-semibold text-gray-800 dark:text-neutral-200">
+                                                        Event: <span class="capitalize text-emerald-600 dark:text-emerald-400">{{ $event->event_type }}</span>
+                                                    </p>
+                                                    @if ($event->payload)
+                                                        @php $payload = json_decode($event->payload, true); @endphp
+                                                        @if ($payload)
+                                                            <div class="mt-1 text-xs text-gray-500 dark:text-neutral-400 bg-gray-50 dark:bg-neutral-900/50 p-2 rounded-lg font-mono">
+                                                                @foreach ($payload as $key => $val)
+                                                                    <div><span class="font-bold text-gray-600 dark:text-neutral-500">{{ $key }}:</span> {{ is_array($val) ? json_encode($val) : $val }}</div>
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                                <div class="text-right text-xs whitespace-nowrap text-gray-400 dark:text-neutral-500">
+                                                    <time datetime="{{ $event->created_at }}">{{ $event->created_at }}</time>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @else
+                    <p class="text-xs text-gray-400 dark:text-neutral-500 text-center py-4">Belum ada riwayat aktivitas tercatat.</p>
+                @endif
+            </div>
         </div>
 
         {{-- Actions Card --}}

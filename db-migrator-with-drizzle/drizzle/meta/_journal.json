@@ -22,6 +22,13 @@
       "when": 1783166967394,
       "tag": "0002_add_settlements_table",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783167244190,
+      "tag": "0003_add_order_events_table",
+      "breakpoints": true
     }
   ]
 }

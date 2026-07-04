@@ -116,6 +116,12 @@ class SettlementUsecase extends Usecase
                     'updated_at' => now(),
                 ]);
 
+            app(OrderEventUsecase::class)->logEvent($settlement->order_id, 'settlement', [
+                'settlement_id' => $settlement->id,
+                'amount' => (float) $settlement->amount,
+                'actor_id' => auth()->id() ?? 0,
+            ]);
+
             DB::commit();
 
             return Response::buildSuccess(message: 'Reimburse talangan berhasil diselesaikan.');

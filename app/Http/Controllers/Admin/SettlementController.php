@@ -51,9 +51,13 @@ class SettlementController extends Controller
 
         $settlement = (object) $result['data'];
 
+        $eventsResult = app(\App\Usecase\OrderEventUsecase::class)->getEventsForOrder($settlement->order_id);
+        $events = $eventsResult['data']['list'] ?? [];
+
         return view('_admin.settlements.detail', [
             'page' => $this->page,
             'settlement' => $settlement,
+            'events' => $events,
         ]);
     }
 

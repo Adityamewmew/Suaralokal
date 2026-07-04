@@ -52,10 +52,14 @@ class BangjekOrderController extends Controller
         $driversResult = $this->usecase->getActiveDrivers();
         $drivers = $driversResult['data']['list'] ?? [];
 
+        $eventsResult = app(\App\Usecase\OrderEventUsecase::class)->getEventsForOrder($id);
+        $events = $eventsResult['data']['list'] ?? [];
+
         return view('_admin.bangjek-orders.detail', [
             'page' => $this->page,
             'order' => $order,
             'drivers' => $drivers,
+            'events' => $events,
         ]);
     }
 

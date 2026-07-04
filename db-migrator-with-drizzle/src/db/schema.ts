@@ -248,3 +248,13 @@ export const settlementsTable = pgTable('settlements', {
     index('settlements_order_id_index').on(t.order_id),
     index('settlements_status_index').on(t.status),
 ]);
+
+export const orderEventsTable = pgTable('order_events', {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    order_id: bigint('order_id', { mode: 'number' }).notNull().references(() => ordersTable.id),
+    event_type: varchar('event_type', { length: 50 }).notNull(), // create, confirm, assign, pickup, complete, settlement
+    payload: text('payload'),
+    created_at: timestamp('created_at', { mode: 'date' }),
+}, (t) => [
+    index('order_events_order_id_index').on(t.order_id),
+]);
